@@ -1,0 +1,86 @@
+# Koleksi request API ShuttleCluster (VS Code REST Client / JetBrains HTTP Client).
+# Cookie session disimpan otomatis antar request.
+# Prasyarat: `bun run db:deploy` + `bun run db:seed` di branch Neon `dev`, lalu `bun run dev`.
+
+@baseUrl = http://localhost:3000/api
+@adminEmail = admin@shuttle-cluster.example
+@adminPassword = ganti-dengan-ADMIN_PASSWORD
+
+### ─── Health ──────────────────────────────────────────────────────────────────
+GET {{baseUrl}}/health
+
+### ─── Multi bahasa ────────────────────────────────────────────────────────────
+# Tanpa session → 401, pesan dalam bahasa Inggris (X-Locale mengalahkan Accept-Language)
+GET {{baseUrl}}/me
+X-Locale: en
+Accept-Language: id-ID,id;q=0.9
+
+### 401 dalam bahasa Indonesia (dari Accept-Language)
+GET {{baseUrl}}/me
+Accept-Language: id-ID,id;q=0.9,en;q=0.8
+
+### Validasi gagal → 400, pesan field dari locale zod (en)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+X-Locale: en
+
+{ "email": "bukan-email", "password": "" }
+
+### ─── Auth ────────────────────────────────────────────────────────────────────
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{adminEmail}}", "password": "{{adminPassword}}" }
+
+### Session aktif + locale efektif
+GET {{baseUrl}}/auth/session
+
+### Rotasi token & perpanjang session
+POST {{baseUrl}}/auth/refresh
+
+### ─── Diri sendiri ────────────────────────────────────────────────────────────
+GET {{baseUrl}}/me
+
+### Ubah nama & bahasa (null = ikuti header)
+PATCH {{baseUrl}}/me
+Content-Type: application/json
+
+{ "name": "Admin", "locale": "en" }
+
+### Logout (idempoten)
+POST {{baseUrl}}/auth/logout
+
+### ─── Pengguna (admin) ─────────────────────────────────────────────────────────
+# Login sebagai admin dulu.
+GET {{baseUrl}}/users?page=1&pageSize=20&role=admin,user
+
+### Buat akun
+# @name createUser
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{ "email": "pelatih@shuttle-cluster.example", "name": "Pelatih", "password": "PasswordAwal-123", "role": "user" }
+
+### Email sudah terdaftar → 409
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{ "email": "pelatih@shuttle-cluster.example", "name": "Duplikat", "password": "PasswordAwal-123", "role": "user" }
+
+### Jadikan admin
+PATCH {{baseUrl}}/users/{{createUser.response.body.data.id}}
+Content-Type: application/json
+
+{ "role": "admin" }
+
+### Nonaktifkan (semua session dicabut)
+PATCH {{baseUrl}}/users/{{createUser.response.body.data.id}}
+Content-Type: application/json
+
+{ "status": "deactivated" }
+
+### Reset password
+POST {{baseUrl}}/users/{{createUser.response.body.data.id}}/reset-password
+Content-Type: application/json
+
+{ "password": "PasswordBaru-456" }

@@ -1,0 +1,321 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+import { cn } from "cn";
+import { ChevronRight } from "lucide-react";
+
+import { Badge } from "@/components/shared/badge";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
+import type {
+  NavBadge,
+  NavGroup,
+  NavMainItem,
+  NavMainLinkItem,
+  NavMainParentItem,
+} from "@/navigation/sidebar/sidebar-items";
+
+interface NavMainProps {
+  readonly items: readonly NavGroup[];
+}
+interface NavItemProps {
+  readonly item: NavMainItem;
+  readonly isItemActive: (item: NavMainItem) => boolean;
+  readonly isSubItemActive: (item: NavMainParentItem) => (url: string) => boolean;
+  readonly isSubmenuOpen: (item: NavMainParentItem) => boolean;
+}
+
+interface NavLinkItemProps {
+  readonly item: NavMainLinkItem;
+  readonly isActive: boolean;
+  readonly showIconFallback: boolean;
+}
+
+interface NavLinkIconProps {
+  readonly item: NavMainLinkItem;
+  readonly showFallback: boolean;
+}
+
+interface NavDropdownItemProps {
+  readonly item: NavMainParentItem;
+  readonly isActive: boolean;
+  readonly isSubItemActive: (url: string) => boolean;
+}
+
+interface NavCollapsibleItemProps {
+  readonly item: NavMainParentItem;
+  readonly isActive: boolean;
+  readonly defaultOpen: boolean;
+  readonly isSubItemActive: (url: string) => boolean;
+}
+
+function CollapsedIconFallback({ title }: { title: string }) {
+  return (
+    <span className="flex size-4 shrink-0 items-center justify-center rounded-none font-medium text-[10px] outline">
+      {title.slice(0, 1)}
+    </span>
+  );
+}
+
+/**
+ * Menu aktif: latar aksen, garis `primary` di kiri, dan ikon `primary`. Menu tidak aktif: ikon diredam
+ * dan menjadi penuh saat hover. Semua warna dari token tema sidebar/primary.
+ */
+const NAV_BUTTON_CLASS = cn(
+  "relative h-9 gap-2.5 px-2.5 transition-colors",
+  "[&_svg]:text-sidebar-foreground/55 hover:[&_svg]:text-sidebar-foreground",
+  "before:absolute before:inset-y-1.5 before:left-0 before:w-0.5 before:bg-primary before:opacity-0 before:transition-opacity",
+  "data-active:font-semibold data-active:before:opacity-100 data-active:[&_svg]:text-primary",
+);
+
+function hasSubItems(item: NavMainItem): item is NavMainParentItem {
+  return Boolean(item.subItems?.length);
+}
+
+export function NavMain({ items }: NavMainProps) {
+  const path = usePathname();
+
+  // Halaman detail (mis. /players/[id]) tetap menandai menu induknya.
+  const matches = (url: string) => (url === "/" ? path === "/" : path === url || path.startsWith(`${url}/`));
+
+  /**
+   * Sub-menu aktif = URL terpanjang yang cocok, supaya `/players/summary` hanya menandai Ringkasan
+   * (bukan juga Daftar `/players`), sedangkan `/players/[id]` tetap menandai Daftar.
+   */
+  const activeSubUrl = (item: NavMainParentItem) =>
+    item.subItems
+      .map((sub) => sub.url)
+      .filter(matches)
+      .sort((a, b) => b.length - a.length)[0];
+
+  const isItemActive = (item: NavMainItem) => {
+    if (hasSubItems(item)) return activeSubUrl(item) !== undefined;
+    return matches(item.url);
+  };
+
+  const isSubItemActive = (item: NavMainParentItem) => (url: string) => activeSubUrl(item) === url;
+
+  const isSubmenuOpen = (item: NavMainParentItem) => activeSubUrl(item) !== undefined;
+
+  return (
+    <>
+      {items.map((group) => (
+        <SidebarGroup key={group.id}>
+          {group.label && (
+            <SidebarGroupLabel className="font-semibold text-[0.625rem] text-sidebar-foreground/50 uppercase tracking-wider group-data-[collapsible=icon]:pointer-events-none">
+              {group.label}
+            </SidebarGroupLabel>
+          )}
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {group.items.map((item) => (
+                <NavItem
+                  key={item.id}
+                  item={item}
+                  isItemActive={isItemActive}
+                  isSubItemActive={isSubItemActive}
+                  isSubmenuOpen={isSubmenuOpen}
+                />
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      ))}
+    </>
+  );
+}
+
+function NavItem({ item, isItemActive, isSubItemActive, isSubmenuOpen }: NavItemProps) {
+  const { state, isMobile } = useSidebar();
+  const isCollapsedDesktop = state === "collapsed" && !isMobile;
+
+  if (!hasSubItems(item)) {
+    return <NavLinkItem item={item} isActive={isItemActive(item)} showIconFallback={isCollapsedDesktop} />;
+  }
+
+  if (isCollapsedDesktop) {
+    return <NavDropdownItem item={item} isActive={isItemActive(item)} isSubItemActive={isSubItemActive(item)} />;
+  }
+
+  return (
+    <NavCollapsibleItem
+      item={item}
+      isActive={isItemActive(item)}
+      defaultOpen={isSubmenuOpen(item)}
+      isSubItemActive={isSubItemActive(item)}
+    />
+  );
+}
+
+function NavLinkItem({ item, isActive, showIconFallback }: NavLinkItemProps) {
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton
+        asChild
+        aria-disabled={item.disabled}
+        tooltip={item.title}
+        isActive={isActive}
+        className={NAV_BUTTON_CLASS}
+      >
+        <Link
+          prefetch={false}
+          href={item.url}
+          target={item.newTab ? "_blank" : undefined}
+          rel={item.newTab ? "noreferrer" : undefined}
+        >
+          <NavLinkIcon item={item} showFallback={showIconFallback} />
+          <span>{item.title}</span>
+        </Link>
+      </SidebarMenuButton>
+      <NavItemBadge badge={item.badge} />
+    </SidebarMenuItem>
+  );
+}
+
+function NavLinkIcon({ item, showFallback }: NavLinkIconProps) {
+  const Icon = item.icon;
+
+  if (Icon) {
+    return <Icon />;
+  }
+
+  if (showFallback) {
+    return <CollapsedIconFallback title={item.title} />;
+  }
+
+  return null;
+}
+
+function NavDropdownItem({ item, isActive, isSubItemActive }: NavDropdownItemProps) {
+  const Icon = item.icon;
+
+  return (
+    <SidebarMenuItem>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <SidebarMenuButton
+            tooltip={item.title}
+            isActive={isActive}
+            disabled={item.disabled}
+            className={NAV_BUTTON_CLASS}
+          >
+            {Icon ? <Icon /> : <CollapsedIconFallback title={item.title} />}
+            <span>{item.title}</span>
+          </SidebarMenuButton>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent side="right" align="start" sideOffset={12} className="w-48">
+          <DropdownMenuGroup>
+            {item.subItems.map((subItem) => {
+              const SubIcon = subItem.icon;
+
+              return (
+                <DropdownMenuItem key={subItem.id} asChild disabled={subItem.disabled}>
+                  <Link
+                    prefetch={false}
+                    href={subItem.url}
+                    target={subItem.newTab ? "_blank" : undefined}
+                    rel={subItem.newTab ? "noreferrer" : undefined}
+                    aria-current={isSubItemActive(subItem.url) ? "page" : undefined}
+                    className="flex items-center gap-2"
+                  >
+                    {SubIcon && <SubIcon />}
+                    <span>{subItem.title}</span>
+                  </Link>
+                </DropdownMenuItem>
+              );
+            })}
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </SidebarMenuItem>
+  );
+}
+
+function NavCollapsibleItem({ item, isActive, defaultOpen, isSubItemActive }: NavCollapsibleItemProps) {
+  const Icon = item.icon;
+
+  return (
+    <Collapsible asChild defaultOpen={defaultOpen} className="group/collapsible">
+      <SidebarMenuItem>
+        <CollapsibleTrigger asChild>
+          <SidebarMenuButton
+            tooltip={item.title}
+            isActive={isActive}
+            disabled={item.disabled}
+            className={NAV_BUTTON_CLASS}
+          >
+            {Icon && <Icon />}
+            <span>{item.title}</span>
+            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
+        <NavItemBadge badge={item.badge} />
+
+        <CollapsibleContent>
+          <SidebarMenuSub>
+            {item.subItems.map((subItem) => {
+              const SubIcon = subItem.icon;
+
+              return (
+                <SidebarMenuSubItem key={subItem.id}>
+                  <SidebarMenuSubButton
+                    asChild
+                    aria-disabled={subItem.disabled}
+                    isActive={isSubItemActive(subItem.url)}
+                  >
+                    <Link
+                      prefetch={false}
+                      href={subItem.url}
+                      target={subItem.newTab ? "_blank" : undefined}
+                      rel={subItem.newTab ? "noreferrer" : undefined}
+                    >
+                      {SubIcon && <SubIcon />}
+                      <span>{subItem.title}</span>
+                    </Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              );
+            })}
+          </SidebarMenuSub>
+        </CollapsibleContent>
+      </SidebarMenuItem>
+    </Collapsible>
+  );
+}
+
+function NavItemBadge({ badge }: { badge?: NavBadge }) {
+  if (!badge) {
+    return null;
+  }
+
+  return (
+    <SidebarMenuBadge className="px-0 capitalize">
+      {/* Tone badge status: menu baru = sudah siap dipakai, "soon" = belum aktif. */}
+      <Badge tone={badge === "new" ? "success" : "inactive"} emphasis="tint">
+        {badge}
+      </Badge>
+    </SidebarMenuBadge>
+  );
+}
