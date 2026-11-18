@@ -16,11 +16,7 @@ export function QuickLinks({ title, links }: { readonly title: string; readonly 
       </CardHeader>
       <CardContent className="grid gap-1 px-2">
         {links.map(({ href, icon: Icon, title: linkTitle, description }) => (
-          <Link
-            key={href}
-            href={href}
-            className="group flex items-center gap-3 p-2 outline-none transition-colors hover:bg-muted focus-visible:ring-1 focus-visible:ring-ring"
-          >
+          <Link key={href} href={href} className="group flex items-center gap-3 p-2 transition-colors hover:bg-muted">
             <span className="flex size-8 shrink-0 items-center justify-center bg-primary/10 text-primary">
               <Icon className="size-4" />
             </span>

@@ -36,3 +36,14 @@ export async function getCategoryStats(): Promise<Partial<Record<CategoryCode, C
     ]),
   );
 }
+
+/** Jumlah pertandingan per tahun (semua kategori), urut dari tahun terlama. */
+export async function getMatchesPerYear(): Promise<{ year: number; matches: number }[]> {
+  const rows = await prisma.$queryRaw<{ year: number; matches: number }[]>`
+    SELECT EXTRACT(YEAR FROM played_on)::int AS year, COUNT(*)::int AS matches
+    FROM matches
+    GROUP BY 1
+    ORDER BY 1
+  `;
+  return rows.map((row) => ({ year: Number(row.year), matches: Number(row.matches) }));
+}

@@ -5,6 +5,16 @@ export const id = {
   greeting: "Selamat datang kembali, {name}",
   description: "Kelompokkan pemain bulu tangkis berdasarkan performa pertandingan.",
   quickLinks: "Tautan cepat",
+  charts: {
+    distributionTitle: "Cluster per kategori",
+    distributionDescription:
+      "Jumlah pemain atau pasangan di tiap tingkat, 24 bulan terakhir data, main draw, minimal 10 pertandingan.",
+    matchesTitle: "Pertandingan per tahun",
+    matchesDescription: "Semua kategori di database.",
+    matches: "Pertandingan",
+    noMatches: "Belum ada data pertandingan.",
+    failed: "Ringkasan clustering gagal dimuat.",
+  },
   links: {
     players: { title: "Pemain", description: "Pemain beserta gender, negara, dan jumlah pertandingan." },
     matches: { title: "Pertandingan", description: "Hasil pertandingan per kategori dengan skor per game." },

@@ -14,7 +14,7 @@ const HIGHLIGHT = "rgb(255, 255, 255)";
 // Cuplikan dekoratif (data fiktif) supaya panel tidak kosong.
 const MATCH_VOLUME = [38, 52, 44, 61, 57, 72, 66, 84, 78, 92];
 
-const glass = "rounded-none border border-white/20 bg-black/35 text-white shadow-lg shadow-black/20 backdrop-blur-md";
+const glass = "rounded-none border border-white/20 bg-black/35 text-white backdrop-blur-md";
 
 /** Shader hanya menerima hex/rgb/hsl, sedangkan token tema berformat oklch → konversi lewat canvas 1×1. */
 function readPrimaryColor(): string | null {

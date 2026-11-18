@@ -79,7 +79,7 @@ export function DetailHeaderSkeleton({
 /** Tab horizontal `PageTabs`: tinggi `h-10` dengan garis dasar. */
 export function TabsSkeleton({ tabs }: { readonly tabs: number }) {
   return (
-    <div className="flex h-10 items-center gap-6 px-3 shadow-[inset_0_-1px_0_var(--border)]">
+    <div className="flex h-10 items-center gap-6 px-3 border-b">
       {Array.from({ length: tabs }, (_, index) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: placeholder statis
         <Skeleton key={index} className="h-4 w-24" />

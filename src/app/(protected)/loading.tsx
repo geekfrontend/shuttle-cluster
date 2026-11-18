@@ -1,35 +1,21 @@
+import { PageHeaderSkeleton } from "@/app/(protected)/_components/skeletons/page-skeletons";
 import { RouteLoading } from "@/app/(protected)/_components/skeletons/route-loading";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 /**
- * Dasbor: sapaan dan tautan cepat. Juga menjadi fallback untuk route di bawah `(protected)` yang tidak
- * punya `loading.tsx` sendiri.
+ * Skeleton umum: judul halaman lalu area konten. Tampil saat berpindah ke halaman yang skeleton-nya belum
+ * diketahui (link sidebar tidak di-prefetch) dan untuk route tanpa `loading.tsx` sendiri. Skeleton dasbor ada di
+ * `(dashboard)/loading.tsx` supaya tidak muncul di halaman lain.
  */
 export default function Loading() {
   return (
     <RouteLoading>
-      <div className="grid gap-2">
-        <Skeleton className="h-9 w-64" />
-        <Skeleton className="h-4 w-96 max-w-full" />
+      <PageHeaderSkeleton />
+      <div className="flex flex-wrap gap-2">
+        <Skeleton className="h-7 w-56" />
+        <Skeleton className="h-7 w-32" />
       </div>
-      <Card className="max-w-md">
-        <CardHeader className="border-b">
-          <Skeleton className="h-5 w-28" />
-        </CardHeader>
-        <CardContent className="grid gap-1 px-2">
-          {Array.from({ length: 5 }, (_, index) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: placeholder statis
-            <div key={index} className="flex items-center gap-3 p-2">
-              <Skeleton className="size-8 shrink-0" />
-              <div className="grid flex-1 gap-1.5">
-                <Skeleton className="h-4 w-28" />
-                <Skeleton className="h-3 w-40" />
-              </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+      <Skeleton className="h-96 w-full" />
     </RouteLoading>
   );
 }

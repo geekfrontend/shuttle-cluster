@@ -62,6 +62,17 @@ export const en = {
     loadFailed: "Could not run the clustering.",
   },
   tabs: { summary: "Summary", members: "Cluster members", calculation: "Calculation" },
+  charts: {
+    scatterTitle: "Where each unit lands",
+    scatterDescription: "One dot per {entity}: win rate across, point difference per game up, colored by cluster.",
+    scatterCaption: "× marks each cluster centroid. Gray lines mark a 50% win rate and an even point difference.",
+    elbowTitle: "Elbow method",
+    elbowDescription: "WCSS per K. The bend where the drop flattens suggests a good K.",
+    silhouetteTitle: "Silhouette per K",
+    silhouetteDescription: "Mean silhouette per K. Higher means clusters are better separated.",
+    kTick: "K={k}",
+    kUsed: "Used",
+  },
   quality: {
     silhouette: "Silhouette",
     silhouetteHint: "−1 to 1, higher means clearer separation",

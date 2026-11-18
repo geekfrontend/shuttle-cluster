@@ -15,6 +15,7 @@ import { interpolate } from "@/lib/i18n/ui";
 
 import { useClusterFormat } from "./cluster-format";
 import { ClusterLevelBadge } from "./cluster-level-badge";
+import { KEvaluationCharts } from "./k-evaluation-charts";
 
 const num = "text-right font-mono text-xs tabular-nums";
 
@@ -128,6 +129,8 @@ export function MethodDetails({ result, k }: { readonly result: ClusteringOutput
           </Table>
         </div>
       </Section>
+
+      <KEvaluationCharts result={result} k={k} />
 
       <Section title={t.evaluationTitle} description={t.evaluationDescription}>
         <Table>

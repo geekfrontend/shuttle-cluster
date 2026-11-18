@@ -101,16 +101,14 @@ export function PageTabs({
       orientation={orientation}
       className={cn(vertical ? "grid items-start gap-5 md:grid-cols-[13rem_minmax(0,1fr)]" : "gap-5")}
     >
-      {/* Garis dasar digambar di TabsList (inset shadow) supaya indikator menimpanya persis. */}
+      {/* Garis dasar = border TabsList; indikator digeser 1px supaya menimpa garis itu persis. */}
       <div className={cn(vertical ? "md:sticky md:top-4" : "overflow-x-auto")}>
         <TabsList
           ref={listRef}
           variant="line"
           className={cn(
             "relative w-full gap-0 p-0",
-            vertical
-              ? "h-fit flex-col items-stretch shadow-[inset_1px_0_0_var(--border)]"
-              : "h-10 justify-start shadow-[inset_0_-1px_0_var(--border)]",
+            vertical ? "h-fit flex-col items-stretch border-l" : "h-10 justify-start border-b",
           )}
         >
           {indicator && (
@@ -143,7 +141,7 @@ export function PageTabs({
               aria-hidden="true"
               className={cn(
                 "pointer-events-none absolute z-20 bg-primary",
-                vertical ? "left-0 w-0.5" : "bottom-0 h-0.5",
+                vertical ? "-left-px w-0.5" : "-bottom-px h-0.5",
                 motion,
               )}
               style={position}

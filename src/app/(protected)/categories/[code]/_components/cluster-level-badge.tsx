@@ -1,19 +1,23 @@
 "use client";
 
-import { Badge, type BadgeTone } from "@/components/shared/badge";
+import { Badge } from "@/components/shared/badge";
 import { clusteringMessages } from "@/features/clustering/messages";
 import type { ClusterLevel } from "@/lib/badminton/categories";
+import { LEVEL_COLOR } from "@/lib/clustering/chart";
 import { useMessages } from "@/lib/i18n/locale-provider";
 
-/** Tingkat performa, bukan baik/buruk: berkembang = perlu perhatian (warning), bukan gagal (danger). */
-export const LEVEL_TONE: Record<ClusterLevel, BadgeTone> = {
-  dominant: "success",
-  competitive: "progress",
-  developing: "warning",
-};
+/** Titik warna tingkat cluster — sama dengan warna seri di chart. */
+export function LevelDot({ level }: { readonly level: ClusterLevel }) {
+  return <span aria-hidden="true" className="size-1.5 shrink-0" style={{ background: LEVEL_COLOR[level] }} />;
+}
 
-/** Nama cluster (Dominan/Kompetitif/Berkembang) dengan warna tingkatnya. */
+/** Nama cluster (Dominan/Kompetitif/Berkembang) dengan titik warna yang sama dengan chart. */
 export function ClusterLevelBadge({ level }: { readonly level: ClusterLevel }) {
   const m = useMessages(clusteringMessages).levels;
-  return <Badge tone={LEVEL_TONE[level]}>{m[level].name}</Badge>;
+  return (
+    <Badge tone="neutral">
+      <LevelDot level={level} />
+      {m[level].name}
+    </Badge>
+  );
 }

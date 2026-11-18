@@ -20,6 +20,7 @@ import { interpolate } from "@/lib/i18n/ui";
 import { PageTabs } from "../../../_components/page-tabs";
 import { useClusterFormat } from "./cluster-format";
 import { ClusterLevelCards } from "./cluster-level-cards";
+import { ClusterScatter } from "./cluster-scatter";
 import { ClusteringFilters } from "./clustering-filters";
 import { MembersTable } from "./members-table";
 import { MethodDetails } from "./method-details";
@@ -118,6 +119,7 @@ export function ClusteringScreen({
                     <p className="text-muted-foreground text-sm">{m.detail.levelsDescription}</p>
                   </div>
                   <ClusterLevelCards clusters={result.clusters} entity={entity} />
+                  <ClusterScatter result={result} entity={entity} />
                   <QualityStats quality={result.quality} />
                 </>
               ),

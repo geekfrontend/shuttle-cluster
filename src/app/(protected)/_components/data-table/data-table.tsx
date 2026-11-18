@@ -186,7 +186,7 @@ export function DataTable<TData extends RowData>({
             {/* Cincin berputar dengan denyut di belakangnya; label hanya untuk pembaca layar. */}
             <span className="relative flex size-12 items-center justify-center" aria-hidden="true">
               <span className="absolute inset-0 animate-ping rounded-full bg-primary/15" />
-              <span className="absolute inset-1 rounded-full bg-background shadow-md ring-1 ring-border" />
+              <span className="absolute inset-1 rounded-full border bg-background" />
               <span className="relative size-7 animate-spin rounded-full border-[3px] border-primary/15 border-t-primary border-r-primary/60" />
             </span>
             <span className="sr-only">{m.table.fetching}</span>

@@ -119,6 +119,13 @@ These serve as the fallback; there is no separate default.css file. */
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
+  /*
+   * Warna data tiap tingkat cluster (Dominan, Kompetitif, Berkembang). Palet kategorikal tervalidasi
+   * (skill dataviz: lightness, chroma, pemisahan buta warna semua pasangan, kontras) terhadap kartu putih.
+   */
+  --chart-dominant: #2a78d6;
+  --chart-competitive: #eb6834;
+  --chart-developing: #1baf7a;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -159,6 +166,10 @@ These serve as the fallback; there is no separate default.css file. */
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
+  /* Langkah gelap dari hue yang sama, divalidasi terhadap kartu gelap. */
+  --chart-dominant: #3987e5;
+  --chart-competitive: #d95926;
+  --chart-developing: #199e70;
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -188,38 +199,6 @@ These serve as the fallback; there is no separate default.css file. */
 }
 
 @layer utilities {
-  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-2xs {
-    box-shadow: var(--shadow-2xs);
-  }
-
-  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-xs {
-    box-shadow: var(--shadow-xs);
-  }
-
-  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-sm {
-    box-shadow: var(--shadow-sm);
-  }
-
-  [data-theme-preset]:not([data-theme-preset="default"]) .shadow {
-    box-shadow: var(--shadow);
-  }
-
-  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-md {
-    box-shadow: var(--shadow-md);
-  }
-
-  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-lg {
-    box-shadow: var(--shadow-lg);
-  }
-
-  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-xl {
-    box-shadow: var(--shadow-xl);
-  }
-
-  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-2xl {
-    box-shadow: var(--shadow-2xl);
-  }
-
   html[data-font="inter"] body {
     --font-sans: var(--font-inter);
   }
@@ -349,4 +328,46 @@ html:has([data-landing-page]) {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
+}
+
+/*
+ * Tampilan datar: tidak ada shadow maupun ring di elemen mana pun; batas elemen memakai border.
+ * Ditulis di luar @layer supaya mengalahkan utility Tailwind dan komponen `src/components/ui` (yang tidak diubah).
+ */
+*,
+::before,
+::after {
+  box-shadow: none !important;
+}
+
+/* Elemen yang sebelumnya dibatasi ring/shadow: kartu, panel melayang, dan dialog. */
+[data-slot="card"],
+[data-slot="popover-content"],
+[data-slot="dropdown-menu-content"],
+[data-slot="dropdown-menu-sub-content"],
+[data-slot="select-content"],
+[data-slot="combobox-content"],
+[data-slot="context-menu-content"],
+[data-slot="context-menu-sub-content"],
+[data-slot="menubar-content"],
+[data-slot="menubar-sub-content"],
+[data-slot="hover-card-content"],
+[data-slot="navigation-menu-viewport"],
+[data-slot="dialog-content"],
+[data-slot="alert-dialog-content"] {
+  border: 1px solid var(--border);
+}
+
+/* Sidebar mode floating: garis tepi menggantikan ring + shadow. (Mode inset sudah memakai border di layout.) */
+[data-variant="floating"] [data-slot="sidebar-inner"] {
+  border: 1px solid var(--sidebar-border);
+}
+
+/*
+ * Penanda fokus keyboard: garis 1px warna ring tepat di tepi elemen, menggantikan focus ring. Item menu &
+ * pilihan list sudah ditandai warna latar saat disorot, jadi tidak diberi garis.
+ */
+:focus-visible:not([role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"], [role="option"]) {
+  outline: 1px solid var(--ring) !important;
+  outline-offset: -1px;
 }

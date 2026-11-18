@@ -39,7 +39,9 @@ function CheckboxMark({ checked }: { readonly checked: boolean }) {
         checked && "border-primary bg-primary text-primary-foreground dark:bg-primary",
       )}
     >
-      {checked && <Check className="size-3 text-primary-foreground!" />}
+      {/* Stroke dengan warna konkret: item menu yang disorot mewarnai semua turunannya (termasuk <path>)
+          dengan accent-foreground, sehingga `currentColor` membuat centang hitam di atas kotak hitam. */}
+      {checked && <Check className="size-3 stroke-primary-foreground" />}
     </span>
   );
 }

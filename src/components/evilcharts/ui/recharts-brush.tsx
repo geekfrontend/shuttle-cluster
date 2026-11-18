@@ -5,7 +5,7 @@ import { ResponsiveContainer, AreaChart, Area, LineChart, Line, BarChart, Bar } 
 import { ChartStyle, getColorsCount, type ChartConfig } from "@/components/evilcharts/ui/recharts-chart";
 import { useCallback, useEffect, type ComponentProps, type FC } from "react";
 import type { MotionValue } from "motion/react";
-import { cn } from "cn";
+import { cn } from "@/lib/utils";
 import * as React from "react";
 
 // ─── Types ──────────────────────────────────────────────────────────────────

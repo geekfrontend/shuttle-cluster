@@ -56,6 +56,18 @@ export const id = {
     loadFailed: "Clustering gagal dijalankan.",
   },
   tabs: { summary: "Ringkasan", members: "Anggota cluster", calculation: "Perhitungan" },
+  charts: {
+    scatterTitle: "Posisi tiap unit",
+    scatterDescription:
+      "Satu titik per {entity}: win rate ke kanan, selisih poin per game ke atas, warna sesuai cluster.",
+    scatterCaption: "Tanda × adalah centroid tiap cluster. Garis abu-abu menandai win rate 50% dan selisih poin nol.",
+    elbowTitle: "Metode Elbow",
+    elbowDescription: "WCSS per K. Titik tekuk saat penurunan mulai landai menunjukkan K yang baik.",
+    silhouetteTitle: "Silhouette per K",
+    silhouetteDescription: "Rata-rata silhouette per K. Makin tinggi, makin jelas pemisahan cluster.",
+    kTick: "K={k}",
+    kUsed: "Dipakai",
+  },
   quality: {
     silhouette: "Silhouette",
     silhouetteHint: "−1 sampai 1, makin tinggi makin jelas terpisah",

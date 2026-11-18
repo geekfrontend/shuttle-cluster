@@ -7,7 +7,7 @@ import type { ClusterSummary } from "@/features/clustering/types";
 import { useMessages } from "@/lib/i18n/locale-provider";
 
 import { useClusterFormat } from "./cluster-format";
-import { LEVEL_TONE } from "./cluster-level-badge";
+import { LevelDot } from "./cluster-level-badge";
 
 /** Tiga kartu cluster (Dominan, Kompetitif, Berkembang): jumlah anggota dan centroid dalam satuan asli. */
 export function ClusterLevelCards({
@@ -35,7 +35,10 @@ export function ClusterLevelCards({
             <CardHeader className="gap-1.5 border-b">
               <div className="flex items-center justify-between gap-2">
                 <CardTitle className="text-sm">{copy.name}</CardTitle>
-                <Badge tone={LEVEL_TONE[level]}>{copy.tier}</Badge>
+                <Badge tone="neutral">
+                  <LevelDot level={level} />
+                  {copy.tier}
+                </Badge>
               </div>
               <CardDescription>{copy.description}</CardDescription>
             </CardHeader>

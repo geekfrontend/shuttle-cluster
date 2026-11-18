@@ -97,7 +97,7 @@ The template example screen `tasks` is hidden from the menu and redirected to `/
 
 ### Loading and empty states
 
-- Every route under `(protected)` has its own `loading.tsx` with a skeleton that mirrors that page (heading, tabs, table, cards). Compose it from `src/app/(protected)/_components/skeletons/` (`RouteLoading`, `PageHeaderSkeleton`, `DetailHeaderSkeleton`, `TabsSkeleton`, `DataTableSkeleton` with shapes from `SKELETON_COLUMNS`, `CardSkeleton`, …). Detail screens render the same `<name>-skeleton.tsx` while their query is pending.
+- `(protected)/loading.tsx` is a general skeleton (page header + content) shown while navigating to a page whose skeleton is not known yet (sidebar links are not prefetched); the dashboard lives in the `(protected)/(dashboard)` route group with its own skeleton. Every route under `(protected)` has its own `loading.tsx` with a skeleton that mirrors that page (heading, tabs, table, cards). Compose it from `src/app/(protected)/_components/skeletons/` (`RouteLoading`, `PageHeaderSkeleton`, `DetailHeaderSkeleton`, `TabsSkeleton`, `DataTableSkeleton` with shapes from `SKELETON_COLUMNS`, `CardSkeleton`, …). Detail screens render the same `<name>-skeleton.tsx` while their query is pending.
 - `DataTable` shows two empty states with `EmptyStateMarquee`: no data yet (`empty={{ icon, title, description }}`, the icon represents the table's records) and no results for the current search/filters (with a clear-filters button). Pass the same `search`/`onSearchChange` to `DataTable` as to `DataTableToolbar`.
 
 ### Frontend data fetching
@@ -105,6 +105,12 @@ The template example screen `tasks` is hidden from the menu and redirected to `/
 - Client components fetch and mutate API data only through TanStack React Query hooks in `src/features/<feature>/hooks/`. Do not call `fetch` directly inside components.
 - The `QueryClient` lives in `src/lib/query/` and is provided in the root layout.
 - Server Components call server services directly (see `docs/api-architecture.md` §3) and never `fetch()` their own API.
+
+### Charts
+
+- Build charts with EvilCharts (`@evilcharts` registry in `components.json`; components in `src/components/evilcharts/`, kept as shipped by the registry). Use `EvilBarChart` / `EvilLineChart`; for forms EvilCharts lacks (e.g. the cluster scatter plot) compose Recharts with the EvilCharts primitives (`ChartContainer`, `ChartTooltip`, `ChartLegend`).
+- Colors come from theme tokens, not raw values in components: cluster levels use `--chart-dominant`, `--chart-competitive`, `--chart-developing` (validated categorical palette, light and dark) through `LEVEL_COLOR` / `levelChartConfig` in `src/lib/clustering/chart.ts`; a single series without identity uses `neutralSeries`. Badges and legends for cluster levels use the same colors (`LevelDot`).
+- Recharts sorts legend items alphabetically: pass `itemSorter={null}` (and `selected={null}` to `ChartLegendContent`) to keep the series order. Never use two y-axes; split into separate charts instead.
 
 ### Data tables
 
@@ -142,8 +148,9 @@ The template example screen `tasks` is hidden from the menu and redirected to `/
 9. Widget selection is not a fixed formula. Try different arrangements of cards, resource rows, meters, charts, tabs, empty states, and actions, then keep the version that communicates the content clearly and feels consistent with the project.
 10. Match nearby screens in card density, borders, radius, spacing, content width, and responsive behavior.
 11. Use semantic theme tokens so new screens work with light mode, dark mode, and the existing theme presets.
-12. Handle relevant loading, empty, error, disabled, and overflow states.
-13. Keep screens accessible with semantic HTML, keyboard support, visible focus states, labels, and appropriate ARIA attributes.
+12. Keep the flat look: no shadows or rings (`shadow-*`, `ring-*`, `inset-shadow-*`); separate surfaces with `border`. `src/app/globals.css` removes every box-shadow globally, borders cards and floating panels via `data-slot`, and draws keyboard focus as a 1px `--ring` outline, so do not add focus rings yourself.
+13. Handle relevant loading, empty, error, disabled, and overflow states.
+14. Keep screens accessible with semantic HTML, keyboard support, visible focus states, labels, and appropriate ARIA attributes.
 
 ## Code conventions
 

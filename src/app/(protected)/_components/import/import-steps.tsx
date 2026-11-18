@@ -35,7 +35,7 @@ export function ImportSteps({
               className={cn(
                 "flex size-6 shrink-0 items-center justify-center font-medium text-xs tabular-nums transition-colors",
                 done && "bg-primary text-primary-foreground",
-                current && "bg-primary text-primary-foreground ring-4 ring-primary/15",
+                current && "bg-primary text-primary-foreground",
                 !done && !current && "border bg-background text-muted-foreground",
               )}
             >

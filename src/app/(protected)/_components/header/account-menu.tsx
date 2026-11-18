@@ -33,10 +33,7 @@ export function AccountMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          className="rounded-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
+        <button type="button" className="rounded-none">
           <Avatar className="size-8 rounded-none">
             <AvatarImage src={user.avatar || undefined} alt={user.name} />
             <AvatarFallback>{getInitials(user.name)}</AvatarFallback>

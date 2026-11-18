@@ -57,7 +57,7 @@ export function PreferencesForm({ savedLocale }: { readonly savedLocale: Locale 
               <label
                 key={option.value ?? "auto"}
                 className={cn(
-                  "flex cursor-pointer items-center justify-between gap-2 border px-3 py-2 text-xs transition-colors hover:bg-muted has-disabled:cursor-not-allowed has-disabled:opacity-50 has-focus-visible:ring-1 has-focus-visible:ring-ring",
+                  "flex cursor-pointer items-center justify-between gap-2 border px-3 py-2 text-xs transition-colors hover:bg-muted has-disabled:cursor-not-allowed has-disabled:opacity-50 has-focus-visible:border-ring",
                   selected && "border-primary bg-primary/5",
                 )}
               >

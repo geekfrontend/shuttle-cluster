@@ -10,10 +10,10 @@ Basis aplikasi sudah bersih dan siap untuk fitur clustering. Yang tersedia saat 
 
 | Menu | Route | Isi |
 |---|---|---|
-| Dasbor | `/` | Sapaan dan tautan cepat |
+| Dasbor | `/` | Chart cluster per kategori dan pertandingan per tahun, tautan cepat |
 | Pemain | `/players` | Daftar pemain (gender, negara, jumlah pertandingan). Tambah/ubah/hapus khusus admin |
 | Pertandingan | `/matches` | Hasil pertandingan per kategori dengan skor per game; validasi aturan BWF. Catat/hapus khusus admin |
-| Kategori | `/categories`, `/categories/[ms\|ws\|md\|wd\|xd]` | Lima kategori BWF dan tiga tingkat performa (Dominan, Kompetitif, Berkembang). Baru UI, belum ada data |
+| Kategori | `/categories`, `/categories/[ms\|ws\|md\|wd\|xd]` | Lima kategori BWF; per kategori: filter periode (shortcut bulan & tahun), 3 cluster (Dominan, Kompetitif, Berkembang), scatter plot, anggota cluster dengan perhitungan per unit, dan tab perhitungan (normalisasi, iterasi, Elbow/Silhouette) |
 | Akun | `/account` | Profil, bahasa, keamanan |
 | Pengguna | `/users` | Khusus admin: tambah akun, ubah role, nonaktifkan, reset kata sandi |
 | Login | `/login` | Satu-satunya halaman auth |

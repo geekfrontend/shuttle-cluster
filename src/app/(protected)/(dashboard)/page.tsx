@@ -6,9 +6,12 @@ import type { Metadata } from "next";
 import { dashboardMessages } from "@/features/dashboard/messages";
 import { interpolate } from "@/lib/i18n/ui";
 import { getMessages } from "@/server/i18n";
+import { getMatchesPerYear } from "@/server/services/category.service";
 import { getWorkspace } from "@/server/workspace/workspace";
 
-import { type QuickLink, QuickLinks } from "./_components/dashboard/quick-links";
+import { type QuickLink, QuickLinks } from "../_components/dashboard/quick-links";
+import { ClusterDistributionChart } from "./_components/cluster-distribution-chart";
+import { MatchesPerYearChart } from "./_components/matches-per-year-chart";
 
 export async function generateMetadata(): Promise<Metadata> {
   const m = await getMessages(dashboardMessages);
@@ -19,7 +22,7 @@ export default async function Page() {
   const workspace = await getWorkspace();
   if (!workspace) redirect("/login");
 
-  const m = await getMessages(dashboardMessages);
+  const [m, matchesPerYear] = await Promise.all([getMessages(dashboardMessages), getMatchesPerYear()]);
   const firstName = workspace.user.name.split(" ")[0] ?? workspace.user.name;
   const links: QuickLink[] = [
     { href: "/players", icon: Contact, ...m.links.players },
@@ -35,7 +38,11 @@ export default async function Page() {
         <h2 className="text-3xl tracking-tight">{interpolate(m.greeting, { name: firstName })}</h2>
         <p className="text-muted-foreground">{m.description}</p>
       </div>
-      <div className="max-w-md">
+      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="grid min-w-0 gap-4">
+          <ClusterDistributionChart />
+          <MatchesPerYearChart data={matchesPerYear} />
+        </div>
         <QuickLinks title={m.quickLinks} links={links} />
       </div>
     </div>
