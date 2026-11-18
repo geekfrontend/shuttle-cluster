@@ -19,6 +19,7 @@ export const id: Record<MessageKey, string> = {
 
   "validation.date": "Gunakan format tanggal YYYY-MM-DD",
   "validation.country": "Gunakan kode negara 3 huruf (mis. INA)",
+  "validation.period": "Tanggal akhir harus sama dengan atau setelah tanggal mulai",
 
   "health.ok": "Layanan berjalan normal",
   "health.db_unavailable": "Database tidak tersedia",
@@ -69,4 +70,6 @@ export const id: Record<MessageKey, string> = {
   "matches.score_too_many_games": "Satu pertandingan maksimal tiga game",
   "matches.score_extra_game": "Game ketiga tidak dimainkan setelah unggul 2-0",
   "matches.winner_required": "Pilih pemenang untuk pertandingan retired atau walkover",
+
+  "clustering.result": "Hasil clustering",
 };

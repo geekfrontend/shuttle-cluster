@@ -8,12 +8,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { clusteringMessages } from "@/features/clustering/messages";
 import { CATEGORIES, categorySlug } from "@/lib/badminton/categories";
 import { interpolate } from "@/lib/i18n/ui";
-import { getMessages } from "@/server/i18n";
+import { getLocale, getMessages } from "@/server/i18n";
+import { getCategoryStats } from "@/server/services/category.service";
 
-/** Lima kategori BWF. Statis — status data per kategori menyusul saat import pertandingan tersedia. */
+/** Lima kategori BWF beserta ringkasan datanya: jumlah pertandingan, unit, dan rentang tanggal. */
 export async function CategoriesTable() {
-  const m = await getMessages(clusteringMessages);
+  const [m, locale, stats] = await Promise.all([getMessages(clusteringMessages), getLocale(), getCategoryStats()]);
   const columns = m.overview.columns;
+  const number = new Intl.NumberFormat(locale);
+  const date = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" });
+  const formatDate = (value: string) => date.format(new Date(`${value}T00:00:00.000Z`));
 
   return (
     <div className="overflow-hidden border border-border/70 bg-background">
@@ -23,7 +27,9 @@ export async function CategoriesTable() {
             <TableHead className="h-8 w-20">{columns.code}</TableHead>
             <TableHead className="h-8">{columns.category}</TableHead>
             <TableHead className="h-8">{columns.unit}</TableHead>
-            <TableHead className="h-8">{columns.status}</TableHead>
+            <TableHead className="h-8 text-right">{columns.matches}</TableHead>
+            <TableHead className="h-8 text-right">{columns.units}</TableHead>
+            <TableHead className="h-8">{columns.dataRange}</TableHead>
             <TableHead className="h-8 w-12">
               <span className="sr-only">{columns.category}</span>
             </TableHead>
@@ -34,6 +40,7 @@ export async function CategoriesTable() {
             const copy = m.categories[category.code];
             const href = `/categories/${categorySlug(category.code)}`;
             const UnitIcon = category.unitSize === 1 ? User : Users;
+            const data = stats[category.code];
             return (
               <TableRow key={category.code}>
                 <TableCell>
@@ -51,8 +58,20 @@ export async function CategoriesTable() {
                     {copy.unit}
                   </span>
                 </TableCell>
+                <TableCell className="text-right text-sm tabular-nums">
+                  {data ? number.format(data.matches) : <span className="text-muted-foreground">0</span>}
+                </TableCell>
+                <TableCell className="text-right text-sm tabular-nums">
+                  {data ? number.format(data.units) : <span className="text-muted-foreground">0</span>}
+                </TableCell>
                 <TableCell>
-                  <Badge tone="inactive">{m.overview.noData}</Badge>
+                  {data?.first && data.last ? (
+                    <span className="text-muted-foreground text-sm tabular-nums">
+                      {formatDate(data.first)} – {formatDate(data.last)}
+                    </span>
+                  ) : (
+                    <Badge tone="inactive">{m.overview.noData}</Badge>
+                  )}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button

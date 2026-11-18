@@ -18,6 +18,7 @@ export const en = {
 
   "validation.date": "Use the date format YYYY-MM-DD",
   "validation.country": "Use a 3-letter country code (e.g. INA)",
+  "validation.period": "The end date must be on or after the start date",
 
   "health.ok": "Service is healthy",
   "health.db_unavailable": "Database is unavailable",
@@ -68,6 +69,8 @@ export const en = {
   "matches.score_too_many_games": "A match has at most three games",
   "matches.score_extra_game": "No third game is played after a 2-0 lead",
   "matches.winner_required": "Choose the winner of a retired or walkover match",
+
+  "clustering.result": "Clustering result",
 } as const;
 
 export type MessageKey = keyof typeof en;

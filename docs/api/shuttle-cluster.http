@@ -131,3 +131,13 @@ Content-Type: application/json
 
 ### Daftar pertandingan MS
 GET {{baseUrl}}/matches?category=MS
+
+### ─── Clustering ──────────────────────────────────────────────────────────────
+# Default: 24 bulan terakhir data, main draw, semua level turnamen, minimal 10 pertandingan.
+GET {{baseUrl}}/clustering?category=MS
+
+### Satu tahun, hanya Super 300 ke atas
+GET {{baseUrl}}/clustering?category=MS&from=2025-01-01&to=2025-12-31&minTier=2
+
+### Ganda campuran, Super 500 ke atas, normalisasi min-max
+GET {{baseUrl}}/clustering?category=XD&minTier=3&normalization=minmax

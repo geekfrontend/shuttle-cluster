@@ -60,13 +60,13 @@ bun run generate:presets
 bun run db:generate | db:migrate | db:deploy | db:studio | db:seed | db:import-bwf
 ```
 
-`bun run test` runs the unit tests (`bun test`, files named `*.test.ts` next to the code they test). Tests cover pure logic such as BWF match rules (`src/lib/badminton/match-rules.ts`), the BWF dataset parser (`src/lib/badminton/bwf-dataset.ts`, used by `prisma/import-bwf.ts`), error handling, and shared schemas; keep such logic (including the future K-Means implementation) free of database/request dependencies so it stays testable. Run build, lint, check, tests, or other validation commands only when the user explicitly requests that validation.
+`bun run test` runs the unit tests (`bun test`, files named `*.test.ts` next to the code they test). Tests cover pure logic such as BWF match rules (`src/lib/badminton/match-rules.ts`), the BWF dataset parser (`src/lib/badminton/bwf-dataset.ts`, used by `prisma/import-bwf.ts`), K-Means (`src/lib/clustering/kmeans.ts`: normalization, k-means++, silhouette, cluster ranking), performance features (`src/lib/clustering/features.ts`), period presets (`src/lib/clustering/period.ts`), tournament tier levels (`src/lib/badminton/tiers.ts`), error handling, and shared schemas; keep such logic free of database/request dependencies so it stays testable. Run build, lint, check, tests, or other validation commands only when the user explicitly requests that validation.
 
 The pre-commit hook runs `bun run generate:presets` (and stages `src/lib/preferences/theme.ts`) plus Biome via lint-staged.
 
 ## Backend (API)
 
-- **Route Handlers** live in `src/app/api/`: `auth/`, `me/`, `players/`, `matches/` (reads for everyone, writes admin-only), `users/` (admin), `health/`, `docs/` + `openapi.json`.
+- **Route Handlers** live in `src/app/api/`: `auth/`, `me/`, `players/`, `matches/` (reads for everyone, writes admin-only), `clustering/` (runs K-Means for one category; reads only), `users/` (admin), `health/`, `docs/` + `openapi.json`.
 - Handler pattern (see `src/app/api/me/route.ts`): wrap in `RouteHandler` → `requireSession()` (or `requireAdmin()` for admin-only endpoints, 403 `auth.admin_required`) → `validateRequest(schema, readJson(req) | readQuery(req))` → call a service → `ApiResponse.ok|created("<message.key>", data)`. Throw `ApiError` for failures.
 - **Service layer** (`src/server/services/*.service.ts`) is the only path to the database (`prisma` from `@/db/client`).
 - Request schemas live in `src/validations/<feature>.schema.ts` (Zod 4). Responses use one envelope: `{ success, code, message, statusCode, data? }`. Clients branch on `code`; `message` is localized.

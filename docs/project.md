@@ -44,6 +44,10 @@ Tidak ada multi-tenant. Akses diatur dengan dua role (§3). Akun admin pertama d
 
 - **Sumber data:** [SahilMotyar/bwf-match-data](https://github.com/SahilMotyar/bwf-match-data) (hasil pertandingan elite BWF 2007–2026, skor per game), diimport dengan `bun run db:import-bwf`. Fitur performa dihitung sistem dari hasil pertandingan. Dataset tidak punya gender & negara pemain: gender diturunkan dari kategori (XD dari pasangannya), negara dibiarkan kosong.
 - Pertandingan divalidasi dengan aturan BWF (`src/lib/badminton/match-rules.ts`): game selesai di 21 dengan selisih 2 atau di 30 (30-29), best of 3, game 3 hanya bila 1-1. Jumlah & gender pemain tiap sisi harus sesuai kategori. Retired/walkover boleh punya game terakhir yang belum selesai, dengan pemenang diisi manual.
+- K-Means di `src/lib/clustering/kmeans.ts` (murni, deterministik dengan seed): normalisasi z-score/min-max, inisialisasi k-means++ dengan beberapa percobaan (WCSS terkecil dipakai), riwayat centroid per iterasi opsional, silhouette, dan evaluasi K untuk grafik Elbow/Silhouette.
+- Fitur performa per unit (`src/lib/clustering/features.ts`): **win rate**, **rasio game menang**, **rata-rata selisih poin per game**, dari pertandingan yang selesai normal (retired/walkover tidak dihitung). Level turnamen tidak dijadikan fitur (membuat cluster tengah berisi "pemain Super 100", bukan performa sedang); dipakai sebagai **filter** `minTier` (`src/lib/badminton/tiers.ts`: 1 = Super 100/Grand Prix … 5 = Super 1000/Finals/Kejuaraan Dunia/Olimpiade).
+- Periode: tanggal mulai & akhir, dengan shortcut N bulan terakhir (6/12/24) dan per tahun (`src/lib/clustering/period.ts`). Shortcut relatif dihitung dari tanggal data terakhir kategori, bukan hari ini. Default 24 bulan terakhir.
+- `GET /api/clustering` menjalankan clustering on-the-fly (tidak disimpan), seed 42 supaya hasil bisa diulang.
 - K = 3 dengan label diurutkan dari centroid: **Dominan** (tinggi), **Kompetitif** (sedang), **Berkembang** (rendah).
 - UI dan pesan API dalam bahasa Indonesia (default) dan Inggris.
 - Stack tetap: Next.js 16, Prisma 7 + Neon, Bun, Biome, deploy ke Vercel.
@@ -52,5 +56,6 @@ Tidak ada multi-tenant. Akses diatur dengan dua role (§3). Akun admin pertama d
 
 - **Fitur performa:** mis. win rate, rasio game menang, rata-rata selisih poin per game, win rate rubber game.
 - **Normalisasi:** min-max atau z-score.
-- **Validasi K = 3:** tampilkan Elbow (WCSS) dan Silhouette sebagai pembenaran nilai K?
+- **Validasi K = 3:** API sudah mengembalikan WCSS & silhouette K = 1–6; perlu ditampilkan sebagai grafik Elbow/Silhouette.
+- **Kekuatan lawan:** fitur belum memperhitungkan kualitas lawan (win rate tinggi di turnamen level rendah). Mitigasi saat ini: filter `minTier`.
 - **Transparansi:** perlu menampilkan langkah perhitungan (data mentah, normalisasi, iterasi centroid) dan ekspor hasil?

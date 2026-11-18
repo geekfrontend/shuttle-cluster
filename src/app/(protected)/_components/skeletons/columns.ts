@@ -23,7 +23,9 @@ export const SKELETON_COLUMNS = {
     { id: "code", shape: "short" },
     { id: "category", shape: "stacked" },
     { id: "unit", shape: "text" },
-    { id: "status", shape: "badge" },
+    { id: "matches", shape: "number" },
+    { id: "units", shape: "number" },
+    { id: "dataRange", shape: "text" },
     { id: "actions", shape: "actions" },
   ],
   users: [

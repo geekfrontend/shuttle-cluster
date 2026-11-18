@@ -147,6 +147,7 @@ DELETE /api/players/{id}        admin — hanya pemain tanpa pertandingan
 GET    /api/matches             semua user — daftar (q turnamen/pemain, category, pagination)
 POST   /api/matches             admin — validasi kategori & skor BWF, pemenang dihitung dari skor
 DELETE /api/matches/{id}        admin
+GET    /api/clustering          semua user — K-Means satu kategori (category, from, to, mainDraw, minTier, minMatches, normalization)
 GET    /api/users               admin — daftar (q, role, status, pagination)
 POST   /api/users               admin — buat akun (email, name, password, role)
 PATCH  /api/users/{id}          admin — ubah name, role, status (active | deactivated)

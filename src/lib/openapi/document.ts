@@ -4,6 +4,7 @@ import { CATEGORY_CODES } from "@/lib/badminton/categories";
 import { LOCALES } from "@/lib/i18n/config";
 import { en } from "@/lib/i18n/messages/en";
 import { changePasswordSchema, loginSchema } from "@/validations/auth.schema";
+import { clusteringQuerySchema } from "@/validations/clustering.schema";
 import { createMatchSchema, listMatchesQuerySchema } from "@/validations/match.schema";
 import { updateMeSchema } from "@/validations/me.schema";
 import { createPlayerSchema, GENDERS, listPlayersQuerySchema, updatePlayerSchema } from "@/validations/player.schema";
@@ -284,6 +285,16 @@ export function buildOpenApiDocument(serverUrl: string) {
         errors: [401, 403, 404],
       }),
     },
+    "/api/clustering": {
+      get: operation({
+        tag: "Clustering",
+        summary: "Jalankan K-Means satu kategori",
+        description:
+          "Fitur per unit (pemain tunggal / pasangan): win rate, rasio game menang, rata-rata selisih poin per game — dari pertandingan selesai normal (retired/walkover tidak dihitung) di periode `from`–`to` (default 24 bulan terakhir data), opsional tanpa kualifikasi dan hanya turnamen level ≥ `minTier`. Unit dengan pertandingan < `minMatches` dilewati. Dinormalisasi (`zscore`/`minmax`), K-Means K = 3 (k-means++, seed 42, 20 percobaan), cluster diurutkan dari centroid tertinggi: `dominant`, `competitive`, `developing`. `result` = `null` bila unit yang memenuhi syarat kurang dari 3.",
+        query: clusteringQuerySchema,
+        success: { status: 200, code: "clustering.result", data: ref("ClusteringResult") },
+      }),
+    },
     "/api/users": {
       get: operation({
         tag: "Users",
@@ -344,6 +355,10 @@ export function buildOpenApiDocument(serverUrl: string) {
         name: "Matches",
         description:
           "Pertandingan per kategori (MS, WS, MD, WD, XD). Unit yang bertanding (pemain tunggal atau pasangan) dibuat otomatis dan menjadi unit clustering.",
+      },
+      {
+        name: "Clustering",
+        description: "K-Means per kategori: Dominan (tinggi), Kompetitif (sedang), Berkembang (rendah).",
       },
       { name: "Users", description: "Kelola pengguna. Khusus admin." },
     ],
@@ -484,6 +499,84 @@ export function buildOpenApiDocument(serverUrl: string) {
               },
             },
             createdAt: { type: "string", format: "date-time" },
+          },
+        },
+        Features: {
+          type: "object",
+          properties: {
+            winRate: { type: "number" },
+            gameWinRate: { type: "number" },
+            pointDiffPerGame: { type: "number" },
+          },
+        },
+        ClusteringResult: {
+          type: "object",
+          properties: {
+            params: { type: "object", description: "Parameter yang dipakai, termasuk periode efektif dan `k` (3)." },
+            dataRange: {
+              type: ["object", "null"],
+              properties: { first: { type: "string", format: "date" }, last: { type: "string", format: "date" } },
+              description: "Rentang tanggal data kategori ini — dasar shortcut periode di UI.",
+            },
+            summary: {
+              type: "object",
+              properties: {
+                matches: { type: "integer" },
+                units: { type: "integer" },
+                eligibleUnits: { type: "integer" },
+              },
+            },
+            features: { type: "array", items: { type: "string" } },
+            result: {
+              type: ["object", "null"],
+              properties: {
+                clusters: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      level: { type: "string", enum: ["dominant", "competitive", "developing"] },
+                      size: { type: "integer" },
+                      centroid: ref("Features"),
+                      normalizedCentroid: { type: "array", items: { type: "number" } },
+                      silhouette: { type: "number" },
+                    },
+                  },
+                },
+                members: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      entryId: { type: "string", format: "uuid" },
+                      players: { type: "array", items: { type: "object" } },
+                      level: { type: "string", enum: ["dominant", "competitive", "developing"] },
+                      stats: { type: "object" },
+                      features: ref("Features"),
+                      silhouette: { type: "number" },
+                    },
+                  },
+                },
+                quality: {
+                  type: "object",
+                  properties: {
+                    wcss: { type: "number" },
+                    silhouette: { type: "number" },
+                    iterations: { type: "integer" },
+                  },
+                },
+                normalization: { type: "object" },
+                evaluation: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: { k: { type: "integer" }, wcss: { type: "number" }, silhouette: { type: "number" } },
+                  },
+                },
+                history: { type: "array", items: { type: "array", items: ref("Features") } },
+                seed: { type: "integer" },
+              },
+            },
           },
         },
       },

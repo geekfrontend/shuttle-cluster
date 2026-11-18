@@ -1,20 +1,24 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { ArrowLeft, FileSpreadsheet, User, Users } from "lucide-react";
+import { ArrowLeft, User, Users } from "lucide-react";
 import type { Metadata } from "next";
 
 import { Button } from "@/components/ui/button";
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Separator } from "@/components/ui/separator";
 import { clusteringMessages } from "@/features/clustering/messages";
+import { DEFAULT_CLUSTERING_FILTERS } from "@/features/clustering/types";
 import { categoryFromSlug } from "@/lib/badminton/categories";
 import { interpolate } from "@/lib/i18n/ui";
 import { getMessages } from "@/server/i18n";
+import { runClustering } from "@/server/services/clustering.service";
 
-import { ClusterLevelCards } from "./_components/cluster-level-cards";
+import { ClusteringScreen } from "./_components/clustering-screen";
 
-type Props = { readonly params: Promise<{ code: string }> };
+type Props = {
+  readonly params: Promise<{ code: string }>;
+  readonly searchParams: Promise<{ tab?: string }>;
+};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const category = categoryFromSlug((await params).code);
@@ -23,11 +27,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: m.categories[category.code].name };
 }
 
-export default async function Page({ params }: Props) {
+export default async function Page({ params, searchParams }: Props) {
   const category = categoryFromSlug((await params).code);
   if (!category) notFound();
 
-  const m = await getMessages(clusteringMessages);
+  // Hasil filter default dihitung di server, supaya halaman langsung berisi tanpa menunggu request kedua.
+  const [m, initialData, { tab }] = await Promise.all([
+    getMessages(clusteringMessages),
+    runClustering({ category: category.code, ...DEFAULT_CLUSTERING_FILTERS }),
+    searchParams,
+  ]);
   const copy = m.categories[category.code];
   const UnitIcon = category.unitSize === 1 ? User : Users;
 
@@ -57,25 +66,7 @@ export default async function Page({ params }: Props) {
         <Separator />
       </div>
 
-      <section className="grid gap-3" aria-labelledby="levels-title">
-        <div>
-          <h3 id="levels-title" className="font-medium text-base">
-            {m.detail.levelsTitle}
-          </h3>
-          <p className="text-muted-foreground text-sm">{m.detail.levelsDescription}</p>
-        </div>
-        <ClusterLevelCards entity={m.entities[category.format]} />
-      </section>
-
-      <Empty className="min-h-72 border">
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <FileSpreadsheet />
-          </EmptyMedia>
-          <EmptyTitle>{m.detail.emptyTitle}</EmptyTitle>
-          <EmptyDescription>{interpolate(m.detail.emptyDescription, { category: copy.name })}</EmptyDescription>
-        </EmptyHeader>
-      </Empty>
+      <ClusteringScreen category={category} initialData={initialData} initialTab={tab} />
     </div>
   );
 }
