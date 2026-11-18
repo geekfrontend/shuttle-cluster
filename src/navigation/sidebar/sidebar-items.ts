@@ -1,4 +1,4 @@
-import { LayoutDashboard, type LucideIcon, Users } from "lucide-react";
+import { Contact, LayoutDashboard, LayoutList, type LucideIcon, Swords, Trophy, Users } from "lucide-react";
 
 import type { WorkspaceMessages } from "@/features/workspace/messages";
 
@@ -60,6 +60,35 @@ export const sidebarItems: NavGroup[] = [
   },
   {
     id: 2,
+    label: "Data",
+    labelKey: "data",
+    items: [
+      { id: "players", title: "Players", url: "/players", icon: Contact },
+      { id: "matches", title: "Matches", url: "/matches", icon: Swords },
+    ],
+  },
+  {
+    id: 3,
+    label: "Clustering",
+    labelKey: "clustering",
+    items: [
+      {
+        id: "categories",
+        title: "Categories",
+        icon: Trophy,
+        subItems: [
+          { id: "categories-all", title: "All categories", url: "/categories", icon: LayoutList },
+          { id: "category-ms", title: "Men's singles", url: "/categories/ms" },
+          { id: "category-ws", title: "Women's singles", url: "/categories/ws" },
+          { id: "category-md", title: "Men's doubles", url: "/categories/md" },
+          { id: "category-wd", title: "Women's doubles", url: "/categories/wd" },
+          { id: "category-xd", title: "Mixed doubles", url: "/categories/xd" },
+        ],
+      },
+    ],
+  },
+  {
+    id: 4,
     label: "Administration",
     labelKey: "administration",
     items: [

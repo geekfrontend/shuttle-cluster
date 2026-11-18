@@ -18,6 +18,7 @@ export const id: Record<MessageKey, string> = {
   "error.origin_mismatch": "Permintaan lintas origin ditolak",
 
   "validation.date": "Gunakan format tanggal YYYY-MM-DD",
+  "validation.country": "Gunakan kode negara 3 huruf (mis. INA)",
 
   "health.ok": "Layanan berjalan normal",
   "health.db_unavailable": "Database tidak tersedia",
@@ -46,4 +47,26 @@ export const id: Record<MessageKey, string> = {
   "users.email_taken": "Email ini sudah terdaftar",
   "users.cannot_modify_self": "Anda tidak dapat mengubah role, status, atau kata sandi Anda sendiri di sini",
   "users.last_admin": "Harus tersisa minimal satu admin aktif",
+
+  "players.list": "Pemain",
+  "players.created": "Pemain berhasil ditambahkan",
+  "players.updated": "Pemain berhasil diperbarui",
+  "players.deleted": "Pemain berhasil dihapus",
+  "players.not_found": "Pemain tidak ditemukan",
+  "players.external_id_taken": "ID eksternal ini sudah dipakai pemain lain",
+  "players.has_matches": "Pemain ini sudah punya pertandingan. Hapus pertandingannya terlebih dahulu",
+  "players.gender_locked": "Gender tidak dapat diubah setelah pemain punya pertandingan",
+
+  "matches.list": "Pertandingan",
+  "matches.created": "Pertandingan berhasil dicatat",
+  "matches.deleted": "Pertandingan berhasil dihapus",
+  "matches.not_found": "Pertandingan tidak ditemukan",
+  "matches.player_not_found": "Satu atau beberapa pemain tidak ditemukan",
+  "matches.same_player": "Satu pemain tidak boleh tampil dua kali dalam satu pertandingan",
+  "matches.side_invalid": "Pemain sisi {side} tidak sesuai ketentuan kategori {category}",
+  "matches.score_game_invalid": "Skor game {game} tidak valid. Game selesai di 21 dengan selisih dua poin, atau di 30",
+  "matches.score_too_few_games": "Pertandingan selesai butuh pemenang dua game",
+  "matches.score_too_many_games": "Satu pertandingan maksimal tiga game",
+  "matches.score_extra_game": "Game ketiga tidak dimainkan setelah unggul 2-0",
+  "matches.winner_required": "Pilih pemenang untuk pertandingan retired atau walkover",
 };

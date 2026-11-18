@@ -84,3 +84,50 @@ POST {{baseUrl}}/users/{{createUser.response.body.data.id}}/reset-password
 Content-Type: application/json
 
 { "password": "PasswordBaru-456" }
+
+### ─── Pemain & pertandingan ─────────────────────────────────────────────────────
+GET {{baseUrl}}/players?page=1&pageSize=20&gender=male
+
+### Tambah pemain (admin)
+# @name playerA
+POST {{baseUrl}}/players
+Content-Type: application/json
+
+{ "name": "Anthony Sinisuka Ginting", "gender": "male", "country": "INA" }
+
+### Tambah pemain lawan (admin)
+# @name playerB
+POST {{baseUrl}}/players
+Content-Type: application/json
+
+{ "name": "Viktor Axelsen", "gender": "male", "country": "DEN" }
+
+### Catat pertandingan MS (pemenang dihitung dari skor)
+POST {{baseUrl}}/matches
+Content-Type: application/json
+
+{
+  "category": "MS",
+  "tournament": "Indonesia Open",
+  "round": "Final",
+  "playedOn": "2024-06-09",
+  "sideA": ["{{playerA.response.body.data.id}}"],
+  "sideB": ["{{playerB.response.body.data.id}}"],
+  "games": [{ "scoreA": 21, "scoreB": 18 }, { "scoreA": 19, "scoreB": 21 }, { "scoreA": 21, "scoreB": 17 }]
+}
+
+### Skor tidak valid → 400 matches.score_game_invalid
+POST {{baseUrl}}/matches
+Content-Type: application/json
+
+{
+  "category": "MS",
+  "tournament": "Indonesia Open",
+  "playedOn": "2024-06-09",
+  "sideA": ["{{playerA.response.body.data.id}}"],
+  "sideB": ["{{playerB.response.body.data.id}}"],
+  "games": [{ "scoreA": 21, "scoreB": 20 }, { "scoreA": 21, "scoreB": 15 }]
+}
+
+### Daftar pertandingan MS
+GET {{baseUrl}}/matches?category=MS

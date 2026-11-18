@@ -4,11 +4,20 @@ import type { ThemeMode } from "@/lib/preferences/theme";
 // Pesan UI shell aplikasi (navigasi, header, menu akun) dan teks umum yang dipakai lintas fitur.
 export const en = {
   nav: {
-    groups: { administration: "Administration" },
+    groups: { data: "Data", clustering: "Clustering", administration: "Administration" },
     brandTagline: "Badminton performance clustering",
     items: {
       default: "Dashboard",
       users: "Users",
+      players: "Players",
+      matches: "Matches",
+      categories: "Categories",
+      "categories-all": "All categories",
+      "category-ms": "Men's singles",
+      "category-ws": "Women's singles",
+      "category-md": "Men's doubles",
+      "category-wd": "Women's doubles",
+      "category-xd": "Mixed doubles",
     },
   },
   account: {

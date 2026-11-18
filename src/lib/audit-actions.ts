@@ -12,6 +12,12 @@ export const AUDIT_ACTIONS = [
   "users.create",
   "users.update",
   "users.password_reset",
+  "players.create",
+  "players.update",
+  "players.delete",
+  "matches.create",
+  "matches.delete",
+  "matches.import",
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

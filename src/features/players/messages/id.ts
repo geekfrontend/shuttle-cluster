@@ -1,0 +1,45 @@
+import type { PlayersMessages } from "./en";
+
+export const id = {
+  genders: { male: "Putra", female: "Putri" },
+  list: {
+    metaTitle: "Pemain",
+    title: "Pemain",
+    description: "Pemain yang hasil pertandingannya dipakai untuk clustering.",
+    searchPlaceholder: "Cari nama, negara, atau ID eksternal…",
+    gender: "Gender",
+    add: "Tambah pemain",
+    empty: "Belum ada pemain",
+    emptyDescription: "Tambahkan pemain, lalu catat pertandingannya.",
+    columns: {
+      player: "Pemain",
+      gender: "Gender",
+      country: "Negara",
+      matches: "Pertandingan",
+      externalId: "ID eksternal",
+      created: "Ditambahkan",
+    },
+  },
+  rowActions: { edit: "Ubah", delete: "Hapus" },
+  delete: {
+    title: "Hapus {name}?",
+    description: "Hanya pemain tanpa pertandingan yang dapat dihapus. Tindakan ini tidak dapat dibatalkan.",
+    confirm: "Hapus",
+  },
+  form: {
+    createTitle: "Tambah pemain",
+    createDescription: "Pemain kemudian bisa dipilih di pertandingan sesuai kategorinya.",
+    editTitle: "Ubah {name}",
+    editDescription: "Gender tidak dapat diubah setelah pemain punya pertandingan.",
+    name: "Nama",
+    nameRequired: "Isi nama.",
+    gender: "Gender",
+    country: "Negara",
+    countryHint: "Kode 3 huruf, mis. INA atau DEN.",
+    countryInvalid: "Gunakan 3 huruf.",
+    externalId: "ID eksternal",
+    externalIdHint: "ID di sumber data (mis. BWF), untuk mencegah duplikat saat import.",
+    create: "Tambah pemain",
+    save: "Simpan perubahan",
+  },
+} satisfies PlayersMessages;

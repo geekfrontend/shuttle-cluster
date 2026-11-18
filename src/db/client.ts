@@ -24,10 +24,26 @@ function createClient() {
   return new PrismaClient({ adapter });
 }
 
-const globalForPrisma = globalThis as unknown as { prisma?: ReturnType<typeof createClient> };
+const globalForPrisma = globalThis as unknown as {
+  prisma?: ReturnType<typeof createClient>;
+  prismaClass?: typeof PrismaClient;
+};
 
-export const prisma = globalForPrisma.prisma ?? createClient();
+/*
+ * Development: instance disimpan di `globalThis` supaya hot reload tidak membuka koneksi baru terus-menerus.
+ * Bila `prisma generate` dijalankan saat dev server hidup (mis. setelah migrasi), class client ikut berganti;
+ * instance lama tidak mengenal model baru (`prisma.player` undefined), jadi dibuang dan dibuat ulang.
+ */
+const cached = globalForPrisma.prismaClass === PrismaClient ? globalForPrisma.prisma : undefined;
+if (!cached && globalForPrisma.prisma) {
+  globalForPrisma.prisma.$disconnect().catch(() => undefined);
+}
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+export const prisma = cached ?? createClient();
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+  globalForPrisma.prismaClass = PrismaClient;
+}
 
 export type Tx = Prisma.TransactionClient;

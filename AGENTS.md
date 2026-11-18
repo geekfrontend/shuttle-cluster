@@ -57,30 +57,30 @@ bun run check
 bun run check:fix
 bun run test
 bun run generate:presets
-bun run db:generate | db:migrate | db:deploy | db:studio | db:seed
+bun run db:generate | db:migrate | db:deploy | db:studio | db:seed | db:import-bwf
 ```
 
-`bun run test` runs the unit tests (`bun test`, files named `*.test.ts` next to the code they test). Tests cover pure logic such as error handling and shared schemas; keep such logic (including the future K-Means implementation) free of database/request dependencies so it stays testable. Run build, lint, check, tests, or other validation commands only when the user explicitly requests that validation.
+`bun run test` runs the unit tests (`bun test`, files named `*.test.ts` next to the code they test). Tests cover pure logic such as BWF match rules (`src/lib/badminton/match-rules.ts`), the BWF dataset parser (`src/lib/badminton/bwf-dataset.ts`, used by `prisma/import-bwf.ts`), error handling, and shared schemas; keep such logic (including the future K-Means implementation) free of database/request dependencies so it stays testable. Run build, lint, check, tests, or other validation commands only when the user explicitly requests that validation.
 
 The pre-commit hook runs `bun run generate:presets` (and stages `src/lib/preferences/theme.ts`) plus Biome via lint-staged.
 
 ## Backend (API)
 
-- **Route Handlers** live in `src/app/api/`: `auth/`, `me/`, `users/` (admin), `health/`, `docs/` + `openapi.json`.
+- **Route Handlers** live in `src/app/api/`: `auth/`, `me/`, `players/`, `matches/` (reads for everyone, writes admin-only), `users/` (admin), `health/`, `docs/` + `openapi.json`.
 - Handler pattern (see `src/app/api/me/route.ts`): wrap in `RouteHandler` → `requireSession()` (or `requireAdmin()` for admin-only endpoints, 403 `auth.admin_required`) → `validateRequest(schema, readJson(req) | readQuery(req))` → call a service → `ApiResponse.ok|created("<message.key>", data)`. Throw `ApiError` for failures.
 - **Service layer** (`src/server/services/*.service.ts`) is the only path to the database (`prisma` from `@/db/client`).
 - Request schemas live in `src/validations/<feature>.schema.ts` (Zod 4). Responses use one envelope: `{ success, code, message, statusCode, data? }`. Clients branch on `code`; `message` is localized.
 - **Audit:** mutations write an audit entry with `writeAudit`; actions must be listed in `src/lib/audit-actions.ts`.
 - **API messages** (`src/lib/i18n/messages/en.ts` and `id.ts`) must be added to both catalogs; the type-check fails otherwise. Locale comes from `X-Locale`, then the user preference, then `Accept-Language`.
 - **OpenAPI:** register new endpoints and schemas in `src/lib/openapi/document.ts` so `/api/docs` (Scalar) stays complete. Update `docs/api/shuttle-cluster.http` when adding notable endpoints.
-- **Database:** schema in `prisma/schema.prisma`, Prisma Client generated into `src/generated/prisma` (git-ignored). Current models: `User` (with `role`), `Session`, `AuditLog`.
+- **Database:** schema in `prisma/schema.prisma`, Prisma Client generated into `src/generated/prisma` (git-ignored). Current models: `User` (with `role`), `Session`, `AuditLog`, `Player`, `Entry` (the competing unit — one player or a pair — per category, and the unit that gets clustered), `Match`, `MatchGame`.
 - Feature flags live in `src/config/` (e.g. `AUTH_CONFIG.passwordChangeEnabled`, currently `false`).
 
 ## Co-location-based structure
 
 Keep feature code close to the route that owns it.
 
-- Dashboard routes: `src/app/(protected)/<screen>/page.tsx` (e.g. `account`, `users`). Public pages (`/login`, `/unauthorized`): `src/app/(public)/`.
+- Dashboard routes: `src/app/(protected)/<screen>/page.tsx` (e.g. `players`, `matches`, `categories`, `account`, `users`). Badminton categories (MS, WS, MD, WD, XD) and cluster levels are defined once in `src/lib/badminton/categories.ts`; their labels live in `clusteringMessages`. Public pages (`/login`, `/unauthorized`): `src/app/(public)/`.
 - Screen-specific components, data, and schemas: `src/app/(protected)/<screen>/_components/`
 - Shared dashboard components (data table, skeletons, workspace, header, sidebar, import kit, page tabs, quick links): `src/app/(protected)/_components/`
 - Shared application components: `src/components/`

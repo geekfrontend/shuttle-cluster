@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { UserRound, Users } from "lucide-react";
+import { Contact, Swords, Trophy, UserRound, Users } from "lucide-react";
 import type { Metadata } from "next";
 
 import { dashboardMessages } from "@/features/dashboard/messages";
@@ -22,6 +22,9 @@ export default async function Page() {
   const m = await getMessages(dashboardMessages);
   const firstName = workspace.user.name.split(" ")[0] ?? workspace.user.name;
   const links: QuickLink[] = [
+    { href: "/players", icon: Contact, ...m.links.players },
+    { href: "/matches", icon: Swords, ...m.links.matches },
+    { href: "/categories", icon: Trophy, ...m.links.categories },
     ...(workspace.user.role === "admin" ? [{ href: "/users", icon: Users, ...m.links.users }] : []),
     { href: "/account", icon: UserRound, ...m.links.account },
   ];

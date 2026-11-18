@@ -18,7 +18,7 @@ export default function Loading() {
           <Skeleton className="h-5 w-28" />
         </CardHeader>
         <CardContent className="grid gap-1 px-2">
-          {Array.from({ length: 2 }, (_, index) => (
+          {Array.from({ length: 5 }, (_, index) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: placeholder statis
             <div key={index} className="flex items-center gap-3 p-2">
               <Skeleton className="size-8 shrink-0" />

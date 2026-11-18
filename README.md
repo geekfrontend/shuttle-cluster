@@ -11,6 +11,9 @@ Basis aplikasi sudah bersih dan siap untuk fitur clustering. Yang tersedia saat 
 | Menu | Route | Isi |
 |---|---|---|
 | Dasbor | `/` | Sapaan dan tautan cepat |
+| Pemain | `/players` | Daftar pemain (gender, negara, jumlah pertandingan). Tambah/ubah/hapus khusus admin |
+| Pertandingan | `/matches` | Hasil pertandingan per kategori dengan skor per game; validasi aturan BWF. Catat/hapus khusus admin |
+| Kategori | `/categories`, `/categories/[ms\|ws\|md\|wd\|xd]` | Lima kategori BWF dan tiga tingkat performa (Dominan, Kompetitif, Berkembang). Baru UI, belum ada data |
 | Akun | `/account` | Profil, bahasa, keamanan |
 | Pengguna | `/users` | Khusus admin: tambah akun, ubah role, nonaktifkan, reset kata sandi |
 | Login | `/login` | Satu-satunya halaman auth |
@@ -91,7 +94,25 @@ bun run db:migrate           # buat migrasi baru dari perubahan schema (branch d
 bun run db:deploy            # terapkan migrasi yang ada
 bun run db:studio            # Prisma Studio
 bun run db:seed              # akun admin
+bun run db:import-bwf        # import dataset hasil pertandingan BWF (lihat di bawah)
 ```
+
+## Dataset pertandingan
+
+Sumber data: [SahilMotyar/bwf-match-data](https://github.com/SahilMotyar/bwf-match-data) — ±105 ribu pertandingan elite BWF 2007–2026, lima kategori, satu CSV per kategori. Data milik BWF dan didistribusikan ulang untuk riset; cantumkan sumbernya bila dipakai.
+
+```bash
+git clone https://github.com/SahilMotyar/bwf-match-data ../bwf-match-data
+D=../bwf-match-data
+bun run db:import-bwf -- $D/ms.csv $D/ws.csv $D/md.csv $D/wd.csv $D/xd.csv --dry-run   # cek dulu
+bun run db:import-bwf -- $D/ms.csv $D/ws.csv $D/md.csv $D/wd.csv $D/xd.csv            # semua periode
+```
+
+Opsi: `--from` / `--to YYYY-MM-DD` (batasi tanggal), `--main-draw` (tanpa babak kualifikasi), `--dry-run` (tanpa menulis).
+
+- Idempoten: pertandingan yang sudah ada (ID eksternal sama) dilewati; pemain dicocokkan lewat nama lengkap di dataset.
+- Gender tidak ada di dataset: diturunkan dari kategori (MS/MD putra, WS/WD putri) dan, untuk XD, dari pasangannya — karena itu import kelima file sekaligus.
+- Skor yang belum selesai dicatat sebagai retired dengan pemenang dari dataset; uji coba format 5×11 poin (2014–2017) dilewati.
 
 ## API singkat
 
@@ -113,7 +134,7 @@ Gunakan `code` untuk logika di klien. `message` sudah diterjemahkan sesuai bahas
 prisma/                      schema, migrasi, seed
 src/app/(protected)/         halaman dashboard (butuh login)
 src/app/(public)/            /login, /unauthorized
-src/app/api/                 Route Handlers: auth, me, users, health, docs
+src/app/api/                 Route Handlers: auth, me, players, matches, users, health, docs
 src/features/<feature>/      lapisan API client: fetch, hook React Query, tipe, pesan UI (id, en)
 src/server/services/         service layer (satu-satunya jalan ke database)
 src/server/                  session, workspace (user aktif), audit, i18n, import spreadsheet

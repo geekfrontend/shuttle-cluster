@@ -17,6 +17,7 @@ export const en = {
   "error.origin_mismatch": "Cross-origin request rejected",
 
   "validation.date": "Use the date format YYYY-MM-DD",
+  "validation.country": "Use a 3-letter country code (e.g. INA)",
 
   "health.ok": "Service is healthy",
   "health.db_unavailable": "Database is unavailable",
@@ -45,6 +46,28 @@ export const en = {
   "users.email_taken": "This email is already registered",
   "users.cannot_modify_self": "You cannot change your own role, status, or password here",
   "users.last_admin": "At least one active admin must remain",
+
+  "players.list": "Players",
+  "players.created": "Player added",
+  "players.updated": "Player updated",
+  "players.deleted": "Player deleted",
+  "players.not_found": "Player not found",
+  "players.external_id_taken": "This external ID is already used by another player",
+  "players.has_matches": "This player already has matches. Delete those matches first",
+  "players.gender_locked": "Gender cannot be changed once the player has matches",
+
+  "matches.list": "Matches",
+  "matches.created": "Match recorded",
+  "matches.deleted": "Match deleted",
+  "matches.not_found": "Match not found",
+  "matches.player_not_found": "One or more players were not found",
+  "matches.same_player": "A player cannot appear twice in one match",
+  "matches.side_invalid": "Side {side} does not match the players required by {category}",
+  "matches.score_game_invalid": "Game {game} score is not valid. A game ends at 21 with a two-point lead, or at 30",
+  "matches.score_too_few_games": "A finished match needs a winner of two games",
+  "matches.score_too_many_games": "A match has at most three games",
+  "matches.score_extra_game": "No third game is played after a 2-0 lead",
+  "matches.winner_required": "Choose the winner of a retired or walkover match",
 } as const;
 
 export type MessageKey = keyof typeof en;

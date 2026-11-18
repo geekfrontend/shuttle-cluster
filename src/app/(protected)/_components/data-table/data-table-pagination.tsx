@@ -76,7 +76,7 @@ export function DataTablePagination<TData extends RowData>({
           </Select>
         </div>
         <div className="flex items-center justify-start whitespace-nowrap font-medium text-sm tabular-nums sm:justify-center">
-          {interpolate(m.pageOf, { page: currentPage, totalPages: pageCount })}
+          {interpolate(m.pageOf, { page: format.number(currentPage), totalPages: format.number(pageCount) })}
         </div>
         <Pagination className="mx-0 w-auto justify-start sm:justify-end">
           <PaginationContent className="gap-0.5 *:data-[slot=pagination-item]:*:h-7">
@@ -114,15 +114,18 @@ export function DataTablePagination<TData extends RowData>({
             )}
             {pageNumbers.map((pageNumber) => (
               <PaginationItem key={pageNumber}>
+                {/* Lebar mengikuti isi (bukan kotak ikon tetap) supaya nomor halaman panjang, mis. 10.418, tidak bertumpuk. */}
                 <PaginationLink
                   href="#"
+                  size="sm"
                   isActive={pageIndex === pageNumber - 1}
+                  className="min-w-7 justify-center px-1.5"
                   onClick={(event) => {
                     preventNavigation(event);
                     table.setPageIndex(pageNumber - 1);
                   }}
                 >
-                  {pageNumber}
+                  {format.number(pageNumber)}
                 </PaginationLink>
               </PaginationItem>
             ))}

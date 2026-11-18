@@ -1,18 +1,20 @@
 /** Komponen dari registry shadcn mengimpor `cn` dari alias `utils` (`@/lib/utils`); proyek ini memakai paket `cn`. */
 export { cn } from "cn";
 
+/**
+ * Maksimal dua huruf untuk avatar: huruf pertama kata pertama dan kata terakhir (`Viktor AXELSEN` → `VA`).
+ * Nama panjang tidak meluber keluar dari avatar kecil, dan tanda baca dilewati (`(CJ) YULIANTI` → `CY`).
+ */
 export const getInitials = (str: string): string => {
-  if (typeof str !== "string" || !str.trim()) return "?";
+  if (typeof str !== "string") return "?";
 
-  return (
-    str
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean)
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase() || "?"
-  );
+  const letters = str
+    .split(/\s+/)
+    .map((word) => word.match(/\p{L}/u)?.[0])
+    .filter((letter): letter is string => letter !== undefined);
+  const first = letters[0] ?? "";
+  const last = letters.length > 1 ? (letters[letters.length - 1] ?? "") : "";
+  return `${first}${last}`.toUpperCase() || "?";
 };
 
 export function formatCurrency(

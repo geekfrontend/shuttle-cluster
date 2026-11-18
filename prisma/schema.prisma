@@ -77,3 +77,105 @@ model AuditLog {
   @@index([createdAt])
   @@map("audit_logs")
 }
+
+// ─── Pemain & pertandingan ────────────────────────────────────────────────────
+
+enum Gender {
+  male
+  female
+}
+
+/// Lima kategori BWF. Definisi & aturan komposisi di `src/lib/badminton/categories.ts`.
+enum Category {
+  MS
+  WS
+  MD
+  WD
+  XD
+}
+
+enum MatchSide {
+  a
+  b
+}
+
+model Player {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  name       String
+  gender     Gender
+  /// Kode negara 3 huruf (IOC/BWF), mis. INA, DEN.
+  country    String?
+  /// ID pemain di sumber eksternal (mis. BWF), untuk mencegah duplikat saat import.
+  externalId String?  @unique @map("external_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  entriesAsPlayer1 Entry[] @relation("EntryPlayer1")
+  entriesAsPlayer2 Entry[] @relation("EntryPlayer2")
+
+  @@index([name])
+  @@map("players")
+}
+
+/// Unit yang bertanding di satu kategori: 1 pemain (tunggal) atau pasangan (ganda).
+/// Unit inilah yang dikelompokkan K-Means. Dibuat otomatis saat pertandingan dicatat.
+model Entry {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  category  Category
+  /// `<kategori>:<id pemain>` atau `<kategori>:<id kecil>+<id besar>` — satu unit per susunan pemain.
+  key       String   @unique
+  player1Id String   @map("player1_id") @db.Uuid
+  player2Id String?  @map("player2_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  player1    Player  @relation("EntryPlayer1", fields: [player1Id], references: [id], onDelete: Restrict)
+  player2    Player? @relation("EntryPlayer2", fields: [player2Id], references: [id], onDelete: Restrict)
+  matchesAsA Match[] @relation("MatchEntryA")
+  matchesAsB Match[] @relation("MatchEntryB")
+
+  @@index([player1Id])
+  @@index([player2Id])
+  @@map("entries")
+}
+
+model Match {
+  id          String    @id @default(uuid(7)) @db.Uuid
+  category    Category
+  tournament  String
+  round       String?
+  playedOn    DateTime  @map("played_on") @db.Date
+  entryAId    String    @map("entry_a_id") @db.Uuid
+  entryBId    String    @map("entry_b_id") @db.Uuid
+  winner      MatchSide
+  /// Tidak selesai normal (retired/walkover); skor game terakhir boleh belum lengkap.
+  retired     Boolean   @default(false)
+  /// Tingkat turnamen dari sumber data, mis. `HSBC BWF World Tour Super 1000`.
+  tier        String?
+  /// ID pertandingan di sumber eksternal (mis. dataset BWF), supaya import ulang tidak menggandakan data.
+  externalId  String?   @unique @map("external_id")
+  createdById String?   @map("created_by_id") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  entryA Entry       @relation("MatchEntryA", fields: [entryAId], references: [id], onDelete: Restrict)
+  entryB Entry       @relation("MatchEntryB", fields: [entryBId], references: [id], onDelete: Restrict)
+  games  MatchGame[]
+
+  @@index([category, playedOn])
+  @@index([entryAId])
+  @@index([entryBId])
+  @@map("matches")
+}
+
+model MatchGame {
+  matchId String @map("match_id") @db.Uuid
+  /// Game ke-1 sampai ke-3.
+  number  Int
+  scoreA  Int    @map("score_a")
+  scoreB  Int    @map("score_b")
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@id([matchId, number])
+  @@map("match_games")
+}

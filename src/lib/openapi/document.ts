@@ -1,9 +1,12 @@
 import { z } from "zod";
 
+import { CATEGORY_CODES } from "@/lib/badminton/categories";
 import { LOCALES } from "@/lib/i18n/config";
 import { en } from "@/lib/i18n/messages/en";
 import { changePasswordSchema, loginSchema } from "@/validations/auth.schema";
+import { createMatchSchema, listMatchesQuerySchema } from "@/validations/match.schema";
 import { updateMeSchema } from "@/validations/me.schema";
+import { createPlayerSchema, GENDERS, listPlayersQuerySchema, updatePlayerSchema } from "@/validations/player.schema";
 import {
   createUserSchema,
   listUsersQuerySchema,
@@ -216,6 +219,71 @@ export function buildOpenApiDocument(serverUrl: string) {
         errors: [400, 401, 429],
       }),
     },
+    "/api/players": {
+      get: operation({
+        tag: "Players",
+        summary: "Daftar pemain",
+        query: listPlayersQuerySchema,
+        success: { status: 200, code: "players.list", data: page("Player") },
+      }),
+      post: operation({
+        tag: "Players",
+        summary: "Tambah pemain",
+        admin: true,
+        body: createPlayerSchema,
+        success: { status: 201, code: "players.created", data: ref("Player") },
+        errors: [400, 401, 403, 409],
+      }),
+    },
+    "/api/players/{id}": {
+      patch: operation({
+        tag: "Players",
+        summary: "Ubah pemain",
+        description: "Gender tidak bisa diubah setelah pemain punya pertandingan (409 `players.gender_locked`).",
+        admin: true,
+        params: ["id"],
+        body: updatePlayerSchema,
+        success: { status: 200, code: "players.updated", data: ref("Player") },
+        errors: [400, 401, 403, 404, 409],
+      }),
+      delete: operation({
+        tag: "Players",
+        summary: "Hapus pemain",
+        description: "Hanya pemain tanpa pertandingan (409 `players.has_matches`).",
+        admin: true,
+        params: ["id"],
+        success: { status: 200, code: "players.deleted" },
+        errors: [401, 403, 404, 409],
+      }),
+    },
+    "/api/matches": {
+      get: operation({
+        tag: "Matches",
+        summary: "Daftar pertandingan",
+        description: "`q` mencari nama turnamen atau nama pemain. Urut dari tanggal terbaru.",
+        query: listMatchesQuerySchema,
+        success: { status: 200, code: "matches.list", data: page("Match") },
+      }),
+      post: operation({
+        tag: "Matches",
+        summary: "Catat pertandingan",
+        description:
+          "Jumlah & gender pemain tiap sisi harus sesuai kategori (XD = 1 putra + 1 putri). Skor divalidasi dengan aturan BWF (21 poin, selisih 2, maksimal 30; best of 3) dan pemenang ditentukan dari skor. `retired: true` untuk retired/walkover: game terakhir boleh belum selesai dan `winner` wajib diisi.",
+        admin: true,
+        body: createMatchSchema,
+        success: { status: 201, code: "matches.created", data: ref("Match") },
+      }),
+    },
+    "/api/matches/{id}": {
+      delete: operation({
+        tag: "Matches",
+        summary: "Hapus pertandingan",
+        admin: true,
+        params: ["id"],
+        success: { status: 200, code: "matches.deleted" },
+        errors: [401, 403, 404],
+      }),
+    },
     "/api/users": {
       get: operation({
         tag: "Users",
@@ -271,6 +339,12 @@ export function buildOpenApiDocument(serverUrl: string) {
       { name: "System" },
       { name: "Auth" },
       { name: "Me" },
+      { name: "Players", description: "Pemain. Semua user bisa membaca; tambah, ubah, hapus khusus admin." },
+      {
+        name: "Matches",
+        description:
+          "Pertandingan per kategori (MS, WS, MD, WD, XD). Unit yang bertanding (pemain tunggal atau pasangan) dibuat otomatis dan menjadi unit clustering.",
+      },
       { name: "Users", description: "Kelola pengguna. Khusus admin." },
     ],
     security: [{ cookieAuth: [] }],
@@ -354,6 +428,61 @@ export function buildOpenApiDocument(serverUrl: string) {
             role: { type: "string", enum: [...USER_ROLES] },
             status: { type: "string", enum: [...USER_STATUSES] },
             lastActiveAt: { type: ["string", "null"], format: "date-time" },
+            createdAt: { type: "string", format: "date-time" },
+          },
+        },
+        Player: {
+          type: "object",
+          properties: {
+            id: { type: "string", format: "uuid" },
+            name: { type: "string" },
+            gender: { type: "string", enum: [...GENDERS] },
+            country: { type: ["string", "null"], example: "INA" },
+            externalId: { type: ["string", "null"] },
+            matchCount: { type: "integer" },
+            createdAt: { type: "string", format: "date-time" },
+          },
+        },
+        MatchSide: {
+          type: "object",
+          properties: {
+            entryId: { type: "string", format: "uuid" },
+            players: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  id: { type: "string", format: "uuid" },
+                  name: { type: "string" },
+                  country: { type: ["string", "null"] },
+                },
+              },
+            },
+          },
+        },
+        Match: {
+          type: "object",
+          properties: {
+            id: { type: "string", format: "uuid" },
+            category: { type: "string", enum: [...CATEGORY_CODES] },
+            tournament: { type: "string" },
+            round: { type: ["string", "null"] },
+            playedOn: { type: "string", format: "date" },
+            winner: { type: "string", enum: ["a", "b"] },
+            retired: { type: "boolean" },
+            sideA: ref("MatchSide"),
+            sideB: ref("MatchSide"),
+            games: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  number: { type: "integer" },
+                  scoreA: { type: "integer" },
+                  scoreB: { type: "integer" },
+                },
+              },
+            },
             createdAt: { type: "string", format: "date-time" },
           },
         },

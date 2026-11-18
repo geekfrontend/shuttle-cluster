@@ -5,7 +5,7 @@ API-first: setiap fitur punya Route Handler di `src/app/api/`, dan UI memakai AP
 ## 1. Struktur
 
 ```
-src/app/api/            Route Handler: auth/, me/, users/, health/, docs/, openapi.json/
+src/app/api/            Route Handler: auth/, me/, players/, matches/, users/, health/, docs/, openapi.json/
 src/server/services/    Service layer — satu-satunya jalan ke DB
 src/server/auth/        Session (cookie + tabel sessions)
 src/server/audit/       writeAudit
@@ -102,7 +102,7 @@ Prisma 7 + `@prisma/adapter-neon`. Client di-generate ke `src/generated/prisma` 
 | `SESSION_SECRET` | Secret token session | Auth |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Akun admin awal | Seed |
 
-Model saat ini: `User` (dengan `role`: admin | user), `Session`, `AuditLog`.
+Model saat ini: `User` (dengan `role`: admin | user), `Session`, `AuditLog`, `Player`, `Entry` (unit yang bertanding: 1 pemain atau pasangan per kategori, kunci unik `key`), `Match`, `MatchGame` (skor per game).
 
 **Konvensi model:**
 
@@ -140,6 +140,13 @@ GET    /api/auth/session
 GET    /api/me
 PATCH  /api/me                  nama, avatar, locale
 PATCH  /api/me/password         404 selama AUTH_CONFIG.passwordChangeEnabled = false
+GET    /api/players             semua user — daftar (q, gender, pagination) + jumlah pertandingan
+POST   /api/players             admin
+PATCH  /api/players/{id}        admin — gender terkunci bila sudah punya pertandingan
+DELETE /api/players/{id}        admin — hanya pemain tanpa pertandingan
+GET    /api/matches             semua user — daftar (q turnamen/pemain, category, pagination)
+POST   /api/matches             admin — validasi kategori & skor BWF, pemenang dihitung dari skor
+DELETE /api/matches/{id}        admin
 GET    /api/users               admin — daftar (q, role, status, pagination)
 POST   /api/users               admin — buat akun (email, name, password, role)
 PATCH  /api/users/{id}          admin — ubah name, role, status (active | deactivated)
@@ -156,6 +163,7 @@ GET    /api/openapi.json        spec OpenAPI 3.1
 cp .env.example .env.local        # isi DATABASE_URL, DIRECT_URL (branch Neon dev), SESSION_SECRET, ADMIN_*
 bun run db:deploy                 # terapkan prisma/migrations
 bun run db:seed                   # akun admin (role admin)
+bun run db:import-bwf -- <csv>... # opsional: dataset pertandingan BWF (lihat README)
 bun run dev
 ```
 

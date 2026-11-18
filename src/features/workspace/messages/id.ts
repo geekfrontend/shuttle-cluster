@@ -2,11 +2,20 @@ import type { WorkspaceMessages } from "./en";
 
 export const id = {
   nav: {
-    groups: { administration: "Administrasi" },
+    groups: { data: "Data", clustering: "Klasterisasi", administration: "Administrasi" },
     brandTagline: "Klasterisasi performa bulu tangkis",
     items: {
       default: "Dasbor",
       users: "Pengguna",
+      players: "Pemain",
+      matches: "Pertandingan",
+      categories: "Kategori",
+      "categories-all": "Semua kategori",
+      "category-ms": "Tunggal putra",
+      "category-ws": "Tunggal putri",
+      "category-md": "Ganda putra",
+      "category-wd": "Ganda putri",
+      "category-xd": "Ganda campuran",
     },
   },
   account: {
